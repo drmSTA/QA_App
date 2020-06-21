@@ -6,6 +6,7 @@ import android.os.Bundle
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.auth.FirebaseAuth
 import android.preference.PreferenceManager
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import com.google.firebase.database.FirebaseDatabase
@@ -56,7 +57,7 @@ class SettingActivity : AppCompatActivity() {
                 else ->{
                     val name = nameText.text.toString()
                     // 変更した表示名をPreferenceに保存する
-                    setUserNameAndGenre(name)
+                    setPreference(this@SettingActivity, KEY_NAME, name)
 
                     // 変更した表示名をFirebaseに保存する
                     val userInDB = firebaseDatabase.child(PATH_USERS).child(user.uid)
@@ -73,21 +74,28 @@ class SettingActivity : AppCompatActivity() {
 
     inner class ClickListener4LogoutButton: View.OnClickListener{
         override fun onClick(view: View) {
-            UiUtility.hideWindowKeyboard(view, inputMethodManager)
-            nameText.setText("")
-            setUserNameAndGenre(null)
+//            logout in firebase
             FirebaseAuth.getInstance().signOut()
 
-            UiUtility.showSnackbar(view, "ログアウトしました")
+//            logout in app preference
+            setPreference(this@SettingActivity, KEY_NAME, null)
+//            お気に入り一覧　→　ログアウト　→　メイン画面　表示の場合に、Genre選択 が favirute の場合はデフォルト値に再設定
+            if(getGenre() == TypeGenre.FAVORITE) setGenre(DEFAULT_GENRE_STRING)
 
+//            UI operation
+            nameText.setText("")
+            UiUtility.hideWindowKeyboard(view, inputMethodManager)
+            UiUtility.showSnackbar(view, "ログアウトしました")
         }
     }
 
-    private fun setUserNameAndGenre(name: String?) {
-        // Preferenceに保存する
-        val editor = PreferenceManager.getDefaultSharedPreferences(this).edit()
-        editor.putString(KEY_NAME, name)
-        editor.apply()
+
+    private fun setGenre(genre: String){
+        setGenre(this, genre)
+    }
+
+    private fun getGenre(): TypeGenre{
+        return jp.techacademy.drms.qa_app.getGenre(this)
     }
 
 }

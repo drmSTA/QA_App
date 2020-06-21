@@ -5,6 +5,12 @@ import android.support.design.widget.Snackbar
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 
+/*
+UIに関わる共通処理を記述
+一行=一行　なのでコードの短縮にはなっていないが、メソッド名を任意
+でつけられることから、可読性を上げる狙いで作成した
+ */
+
 class UiUtility {
 
     companion object {

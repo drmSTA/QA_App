@@ -55,7 +55,7 @@ class LoginActivity : AppCompatActivity() {
             val password = passwordText.text.toString()
             val name = nameText.text.toString()
 
-            when(StringUtility.isValid4login(email, password, name)){
+            when(StringUtility.isValidFormat4login(email, password, name)){
                 true -> {
                     // ログイン時に表示名を保存するようにフラグを立てる
                     loginType = TypeLogin.NEW_USER
@@ -99,7 +99,7 @@ class LoginActivity : AppCompatActivity() {
             val email = emailText.text.toString()
             val password = passwordText.text.toString()
 
-            when(StringUtility.isValid4login(email, password, " ")){
+            when(StringUtility.isValidFormat4login(email, password, " ")){
                 true ->{
                     loginType = TypeLogin.CURRENT_USER
                     performLogin(email, password)

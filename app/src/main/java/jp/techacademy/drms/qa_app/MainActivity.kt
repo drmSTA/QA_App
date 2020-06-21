@@ -4,6 +4,7 @@ package jp.techacademy.drms.qa_app
 import android.content.Intent
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
@@ -14,6 +15,7 @@ import android.view.Menu
 import android.view.MenuItem
 import com.google.firebase.auth.FirebaseAuth
 import android.util.Base64
+import android.util.Log
 import android.view.View
 import android.widget.ListView
 import com.google.firebase.database.*
@@ -53,14 +55,15 @@ class MainActivity : AppCompatActivity() {
 
         questionsListAdapter = QuestionsListAdapter(this)
         questionsListAdapter.notifyDataSetChanged()
+
     }
 
     private fun setGenre(genre: String){
-        jp.techacademy.drms.qa_app.setGenre(this, genre)
+        setGenre(this, genre)
     }
 
     private fun getGenre(): TypeGenre{
-        return jp.techacademy.drms.qa_app.getGenre(this)
+        return getGenre(this)
     }
 
 
@@ -75,7 +78,6 @@ class MainActivity : AppCompatActivity() {
         toggle.syncState()
 
         navigationView = findViewById<NavigationView>(R.id.nav_view)
-        applyUserLoginStatusToNavigationView()
         navigationView.setNavigationItemSelectedListener(listener4navigationItemSelection)
 
         // ListViewの準備
@@ -88,17 +90,23 @@ class MainActivity : AppCompatActivity() {
         }
 
         fab.setOnClickListener (ClickListener4FloatingActionButton())
+        applyUserLoginStatusToNavigationView()
+
     }
 
     override fun onResume() {
         super.onResume()
-
-        // onPauseまでであればプロセス切り替え前のジャンル選択に、プロセスのキルまで行われた場合は
-        // DEFAULT_GENRE_INT_VALUEの値にて設定が行われる
-        // menu.getItemで指定する番号は、TypeGenre(enum) と activity_main_drawer.xml で指定一致させている
-        listener4navigationItemSelection.onNavigationItemSelected(navigationView.menu.getItem(getGenre().string.toInt()))
         applyUserLoginStatusToNavigationView()
+    }
 
+    private fun applyUserLoginStatusToNavigationView(){
+//        お気に入り一覧の表示切り替え（Loginなし＝非表示、Login＝表示）
+        when(FirebaseAuth.getInstance().currentUser){
+            null -> navigationView.menu.findItem(R.id.nav_favorite).isVisible = false
+            else -> navigationView.menu.findItem(R.id.nav_favorite).isVisible = true
+        }
+//         menu.getItemで指定する番号は、TypeGenre(enum) と activity_main_drawer.xml で指定一致させている
+        listener4navigationItemSelection.onNavigationItemSelected(navigationView.menu.getItem(getGenre().string.toInt()))
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -115,15 +123,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         return super.onOptionsItemSelected(item)
-    }
-
-
-    private fun applyUserLoginStatusToNavigationView(){
-        //お気に入り一覧の表示切り替え（Loginなし＝非表示、Login＝表示）
-        when(FirebaseAuth.getInstance().currentUser){
-            null -> navigationView.menu.findItem(R.id.nav_favorite).isVisible = false
-            else -> navigationView.menu.findItem(R.id.nav_favorite).isVisible = true
-        }
     }
 
     inner class ClickListener4FloatingActionButton: View.OnClickListener{
@@ -164,13 +163,22 @@ class MainActivity : AppCompatActivity() {
                     val uid : String = FirebaseAuth.getInstance().currentUser!!.uid
                     currentWatchingNodeInDB = firebaseDatabase.child(PATH_FAVORITES).child(uid)
                     eventListener4currentWatchingNode = EventListener4FavoriteInDB()
+
+//                    お気に入り一覧の機能をジャンルの一つとして実装したため
+//                    genre が お気に入りのときには質問を追加させないように fab を非表示にしている
+                    fab.visibility = FloatingActionButton.INVISIBLE
                 }
                 else ->{
                     currentWatchingNodeInDB = firebaseDatabase.child(PATH_CONTENTS).child(getGenre().string)
                     eventListener4currentWatchingNode = EventListener4GenreInDB()
+
+                    fab.visibility = FloatingActionButton.VISIBLE
+                    fab.setOnClickListener(ClickListener4FloatingActionButton())
+
                 }
             }
             currentWatchingNodeInDB.addChildEventListener(eventListener4currentWatchingNode)
+
             return true
         }
 

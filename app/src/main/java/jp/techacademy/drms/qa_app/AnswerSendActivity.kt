@@ -11,6 +11,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.activity_answer_send.*
+import kotlinx.android.synthetic.main.app_bar_main.*
 import java.util.HashMap
 
 class AnswerSendActivity : AppCompatActivity(){

@@ -3,7 +3,9 @@ package jp.techacademy.drms.qa_app
 
 import android.content.Intent
 import android.os.Bundle
+import android.support.design.widget.FloatingActionButton
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.View
 
 import com.google.firebase.auth.FirebaseAuth
@@ -38,8 +40,6 @@ class QuestionDetailActivity : AppCompatActivity() {
 
     private fun initializeUI(){
         title = question.title
-
-        fab.setOnClickListener(ClickListener4FloatingActionButton())
 
         // ListViewの準備
         questionDetailListAdapter = QuestionDetailListAdapter(this, question)
